@@ -1,0 +1,34 @@
+dist: trusty
+sudo: required
+language: generic
+services:
+- docker
+env:
+  global:
+  - BINARY=resin-wifi-connect
+  - BUILD_OS=linux
+  matrix:
+  - ARCH=aarch64 TARGET=aarch64-unknown-linux-gnu
+  - ARCH=armv7hf TARGET=armv7-unknown-linux-gnueabihf
+  - ARCH=rpi TARGET=arm-unknown-linux-gnueabihf
+  - ARCH=i386 TARGET=i686-unknown-linux-gnu
+  - ARCH=amd64 TARGET=x86_64-unknown-linux-gnu
+install: true
+script: ci/build.sh
+before_deploy:
+- mkdir -p $TRAVIS_TAG/dist
+- sudo mv target/$TARGET/release/$BINARY $TRAVIS_TAG/dist/$BINARY
+- cp -R public $TRAVIS_TAG/dist/public
+- tar -czvf $TRAVIS_TAG/$BINARY-$TRAVIS_TAG-$BUILD_OS-$ARCH.tar.gz -C $TRAVIS_TAG/dist .
+- rm -rdf $TRAVIS_TAG/dist
+deploy:
+  provider: releases
+  api_key: "$ACCESS_TOKEN"
+  skip_cleanup: true
+  overwrite: true
+  file: $TRAVIS_TAG/$BINARY-$TRAVIS_TAG-$BUILD_OS-$ARCH.tar.gz
+  on:
+    branch: master
+    tags: true
+notifications:
+  email: false
