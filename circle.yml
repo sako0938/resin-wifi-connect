@@ -37,6 +37,9 @@ defaults: &defaults
         name: Run build
         command: |
           set -x
+          which bash
+          apk add --no-cache bash
+          which bash
           pwd
           ls -lah
           ci/build.sh
