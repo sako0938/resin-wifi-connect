@@ -91,6 +91,13 @@ jobs:
             rustc --version
             cargo test
   deploy:
+    docker:
+      - image: library/alpine:latest
+    working_directory: /tmp/build
+    steps:
+      - setup_remote_docker:
+          version: 17.06.0-ce
+          reusable: true
     - attach_workspace:
         at: /tmp/workspace
     - run: ls -lah /tmp/workspace
