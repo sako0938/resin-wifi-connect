@@ -9,13 +9,11 @@ test: &test
     - setup_remote_docker:
         version: 17.06.0-ce
         reusable: true
-    - run:
-        name: Test Docker
-        command: docker info
     - checkout
     - run:
         name: Test
         command: |
+          rustc --version
           cargo test
 
 defaults: &defaults
