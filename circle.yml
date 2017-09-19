@@ -1,6 +1,23 @@
 ---
 version: 2
 
+test: &test
+  docker:
+    - image: library/rust:1.20-jessie
+  working_directory: /tmp/build
+  steps:
+    - setup_remote_docker:
+        version: 17.06.0-ce
+        reusable: true
+    - run:
+        name: Test Docker
+        command: docker info
+    - checkout
+    - run:
+        name: Test
+        command: |
+          cargo test
+
 defaults: &defaults
   docker:
     - image: library/docker:17.06.0-ce
@@ -18,7 +35,11 @@ defaults: &defaults
     - checkout
     - run:
         name: Run build
-        command: ci/build.sh
+        command: |
+          set -x
+          pwd
+          ls -lah
+          ci/build.sh
     - run:
         name: Prepare for deploy
         command: |
@@ -57,9 +78,14 @@ jobs:
     environment:
       ARCH: amd64
       TARGET: x86_64-unknown-linux-gnu
+  test:
+    <<: *test
 
 workflows:
   version: 2
+  test:
+    jobs:
+      - test
   build:
     jobs:
       - aarch64
