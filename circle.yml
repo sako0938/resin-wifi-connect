@@ -37,7 +37,6 @@ defaults: &defaults
         name: Run build
         command: |
           set -x
-          which bash
           apk add --no-cache bash
           which bash
           pwd
@@ -86,14 +85,22 @@ jobs:
 
 workflows:
   version: 2
-  test:
+  test_and_build:
     jobs:
       - test
-  build:
-    jobs:
-      - aarch64
-      - armv7hf
-      - rpi
-      - i386
-      - amd64
+      - aarch64:
+          requires:
+            - test
+      - armv7hf:
+          requires:
+            - test
+      - rpi:
+          requires:
+            - test
+      - i386:
+          requires:
+            - test
+      - amd64:
+          requires:
+            - test
 
