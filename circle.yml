@@ -1,30 +1,7 @@
 ---
 version: 2
 
-deploy: &deploy
-  - attach_workspace:
-      at: /tmp/workspace
-  - run: ls -lah /tmp/workspace
-
-test: &test
-  docker:
-    - image: library/rust:1.20-jessie
-  working_directory: /tmp/build
-  steps:
-    - setup_remote_docker:
-        version: 17.06.0-ce
-        reusable: true
-    - checkout
-    - run:
-        name: Test
-        command: |
-          apt-get update
-          apt-get install -y libdbus-1-dev libc6-dev
-
-          rustc --version
-          cargo test
-
-defaults: &defaults
+build: &build
   docker:
     - image: library/docker:17.06.0-ce
   working_directory: /tmp/build
@@ -62,44 +39,61 @@ defaults: &defaults
 
 jobs:
   aarch64:
-    <<: *defaults
+    <<: *build
     environment:
       BINARY: resin-wifi-connect
       BUILD_OS: linux
       ARCH: aarch64
       TARGET: aarch64-unknown-linux-gnu
   armv7hf:
-    <<: *defaults
+    <<: *build
     environment:
       BINARY: resin-wifi-connect
       BUILD_OS: linux
       ARCH: armv7hf
       TARGET: armv7-unknown-linux-gnueabihf
   rpi:
-    <<: *defaults
+    <<: *build
     environment:
       BINARY: resin-wifi-connect
       BUILD_OS: linux
       ARCH: rpi
       TARGET: arm-unknown-linux-gnueabihf
   i386:
-    <<: *defaults
+    <<: *build
     environment:
       BINARY: resin-wifi-connect
       BUILD_OS: linux
       ARCH: i386
       TARGET: i686-unknown-linux-gnu
   amd64:
-    <<: *defaults
+    <<: *build
     environment:
       BINARY: resin-wifi-connect
       BUILD_OS: linux
       ARCH: amd64
       TARGET: x86_64-unknown-linux-gnu
   test:
-    <<: *test
+    docker:
+      - image: library/rust:1.20-jessie
+    working_directory: /tmp/build
+    steps:
+      - setup_remote_docker:
+          version: 17.06.0-ce
+          reusable: true
+      - checkout
+      - run:
+          name: Test
+          command: |
+            apt-get update
+            apt-get install -y libdbus-1-dev libc6-dev
+
+            rustc --version
+            cargo test
   deploy:
-    <<: *deploy
+    - attach_workspace:
+        at: /tmp/workspace
+    - run: ls -lah /tmp/workspace
 
 workflows:
   version: 2
