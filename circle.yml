@@ -1,6 +1,11 @@
 ---
 version: 2
 
+deploy: &deploy
+  - attach_workspace:
+      at: /tmp/workspace
+  - run: ls -lah /tmp/workspace
+
 test: &test
   docker:
     - image: library/rust:1.20-jessie
@@ -50,7 +55,10 @@ defaults: &defaults
           sudo mv target/$TARGET/release/$BINARY $TRAVIS_TAG/dist/$BINARY
           cp -R public $TRAVIS_TAG/dist/public
           tar -czvf $TRAVIS_TAG/$BINARY-$TRAVIS_TAG-$BUILD_OS-$ARCH.tar.gz -C $TRAVIS_TAG/dist .
-          rm -rdf $TRAVIS_TAG/dist
+    - persist_to_workspace:
+        root: workspace
+        paths:
+          - $TRAVIS_TAG/$BINARY-$TRAVIS_TAG-$BUILD_OS-$ARCH.tar.gz
 
 jobs:
   aarch64:
@@ -90,6 +98,8 @@ jobs:
       TARGET: x86_64-unknown-linux-gnu
   test:
     <<: *test
+  deploy:
+    <<: *deploy
 
 workflows:
   version: 2
@@ -111,4 +121,11 @@ workflows:
       - amd64:
           requires:
             - test
+      - deploy:
+          requires:
+            - aarch64
+            - armv7hf
+            - rpi
+            - i386
+            - amd64
 
