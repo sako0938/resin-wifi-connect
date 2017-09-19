@@ -13,6 +13,9 @@ test: &test
     - run:
         name: Test
         command: |
+          apt-get update
+          apt-get install -y libdbus-1-dev libc6-dev
+
           rustc --version
           cargo test
 
