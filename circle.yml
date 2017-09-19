@@ -98,9 +98,9 @@ jobs:
       - setup_remote_docker:
           version: 17.06.0-ce
           reusable: true
-    - attach_workspace:
-        at: /tmp/workspace
-    - run: ls -lah /tmp/workspace
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: ls -lah /tmp/workspace
 
 workflows:
   version: 2
