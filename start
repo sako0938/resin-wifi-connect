@@ -2,7 +2,7 @@
 
 export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/host/run/dbus/system_bus_socket
 
-sleep ${START_SLEEP:30} # Delay needed to avoid DBUS introspection errors
+sleep 30 # Delay needed to avoid DBUS introspection errors
 
 node src/app.js --clear=false
 
